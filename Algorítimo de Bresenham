@@ -1,0 +1,137 @@
+package Package;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.awt.GLCanvas ;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLAutoDrawable;
+import javax.swing.JFrame;
+
+public class Retas implements GLEventListener{
+   
+    public int x1 = 1;
+    public int x2 = 12;
+    public int y1 = 1;
+    public int y2 = 5;
+    @Override
+    public void display(GLAutoDrawable arg0) {
+          final GL2 gl = arg0.getGL().getGL2();
+         
+            draw_line(gl, x1, x2, y1, y2);
+            gl.glFlush(); 
+       
+    }
+    @Override
+    public void dispose(GLAutoDrawable arg0) {
+       
+    }
+    @Override
+    public void init(GLAutoDrawable arg0) {
+       
+        final GL2 gl = arg0.getGL().getGL2();
+          
+        // Limpar a Tela e Setar a cor Branca
+        gl.glClearColor(1, 1, 1, 0);
+        gl.glClear (GL2.GL_COLOR_BUFFER_BIT);
+          
+        gl.glMatrixMode(gl.GL_PROJECTION);
+        gl.glOrtho(0, 15, 0, 15, 1, -1);
+        gl.glMatrixMode(gl.GL_MODELVIEW);
+       
+    }
+    @Override
+    public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3, int arg4) {
+       
+    }
+   
+    private void draw_pixel(GL2 gl, int x, int y) {
+        //Inicia A cor Vermelha
+        gl.glColor3f(1, 0, 0);
+       
+        gl.glPointSize(10);
+       
+        gl.glBegin(gl.GL_POINTS);
+            gl.glVertex2i(x, y);
+        gl.glEnd();
+    }
+      
+    public void draw_line(GL2 gl, int xP, int xQ, int yP, int yQ) {
+        int x = xP,
+        y = yP,
+        d = 0,
+        dx = xQ - xP,
+        dy = yQ - yP,
+        c, m,
+        xInc = 1,
+        yInc = 1;
+                   
+        if(dx < 0){
+            xInc = -1;
+            dx = -dx;
+        }
+               
+        if(dy < 0){
+            yInc = -1;
+            dy = -dy;   
+        }
+               
+        if(dx <= dy) {
+            c = 2 * dx;
+            m = c * dy;
+                   
+            while (x != xQ) {
+                draw_pixel(gl,x,y);
+                x += xInc;
+                d += m;
+                   
+                if (d >= dx){
+                    y+= yInc;
+                    d-=c;
+                }
+                       
+            }
+                   
+        }else {
+            c = 2 * dy;
+            m = c * dx;
+                   
+            //Garantir que o incremento de y seja positivo
+            if(yInc < 0){
+                dy++;
+            }
+            while (y != yQ) {
+                draw_pixel(gl,x,y);
+                y += yInc;
+                d += m;
+                   
+                if (d >= dy){
+                    x += xInc;
+                    d-=c;
+                }
+            }
+         }
+    }
+   
+    public static void main(String[] args) {
+       
+        //Getting the capabilities object of GL2 profile
+        final GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLCapabilities capabilities = new GLCapabilities(profile);
+       
+        // Cria o Canvas
+        final GLCanvas glcanvas = new GLCanvas(capabilities);
+        Retas r = new Retas();
+        glcanvas.addGLEventListener(r);
+        glcanvas.setSize(400, 400);
+       
+        //Criar A tela (Swing)
+        final JFrame frame = new JFrame ("straight Line");
+       
+        //Adiciona o camvas na tela
+        frame.getContentPane().add(glcanvas);
+        frame.setSize(frame.getContentPane().getPreferredSize());
+        frame.setVisible(true);
+          
+    }
+}
